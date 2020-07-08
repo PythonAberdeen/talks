@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+  
+  <head>
+    <meta charset="utf-8">
+    
+    <title>Web stuff</title>
+
+    <meta name="description" content="Python web stuff">
+    <meta name="author" content="Robert McWilliam">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/solarized.css" id="theme">
+    
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+    
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+  </head>
+
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h1>Web stuff</h1>
+          <p>Robert McWilliam</p>
+          <p>ormiret</p>
+          <p><a href="mailto:ormiret@ormiret.com">ormiret@ormiret.com</a></p>
+          <aside class="notes">
+            <p>Day job: electronic engineer, involves lots of software
+            stuff. And I spend a decent amount of time coding for
+            fun.</p>
+            <p>Have played with loads of different languages.</p>
+            <p>
+            Currently most of my time is spent with (system)verilog,
+            python and C plus I have old projects I occasionally touch
+            in a variety of other languages (a few clojure). </p>
+            <p> First serious use of python was in 2006 - about half
+            the code for my Masters project was python</p>
+        </section>
+        <section>
+          <h1>Plan</h1>
+          <h3 class="fragment">How does the web work?</h3>
+          <h3 class="fragment">Server side</h3>
+          <h3 class="fragment">Client side</h3>
+          <aside class="notes">
+            <p>Going to be a bit high level and hand wavey</p>
+            <p>Not going to go through all the possibilities for anything - would take forever</p>
+            <p>Will be a quick introduction to a selection of the tools I would use for web type stuff</p>
+            <p>Interrupt if there's anything that's not clear - if I can give a quick answer or explanation I will, if it will derail things too much we can come back to it later</p>
+          </aside>
+        </section>
+        <section>
+          <h1>How does the web work?</h1>
+
+          <h2 class="fragment">Client sends request ⇨ Server</h2>
+          <h2 class="fragment">Server sends response ⇨ Client</h2>
+          <aside class="notes">
+            <p>Repeat for a few billion clients making however many thousand requests per day to a few tens of millions of servers</p>
+            <p>Actually more complicated than that.</p>
+            <p>Load of complexity hidden behind the notion that the Internet exists and lets computers talk to each other. </p>
+            <p>Also some web stuff deviates from this model - like websockets have a long lived comms channel that client or server can send on at any time</p>
+        </section>
+        <section>
+          <h1>Request</h1>
+          <h2 class="fragment">URL</h2>
+          <div class="fragment">
+            <h3>Client can send data</h3>
+            <ul>
+              <li>Cookies</li>
+              <li>POST</li>
+              <li>...</li>
+            </ul>
+          </div>
+          <aside class="notes">
+            <p>What are you requesting?</p>
+            <p>What else can you give the server for meeting that request?</p>
+          </aside>
+        </section>
+        <section>
+          <h1>Response</h1>
+          <div class="fragment">
+            <h2>Response Code</h2>
+            <ul>
+              <li>200 OK</li>
+              <li>404 Not Found</li>
+              <li>30X Redirect</li>
+              <li>50X Server Error</li>
+            </ul>
+          </div>
+          <div class="fragment">
+            <h2>Data</h2>
+            <p>HTML, JS, JSON, CSS, image...</p>
+          </div>
+          <aside class="notes">
+
+          </aside>
+        </section>
+        <section>
+          <h1>Flask</h1>
+          <pre class="fragment"><code data-trim>
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def hello():
+    return "Hello, World!"              
+          </code></pre>
+          <aside class="notes">
+            <p>Modules for doing webserver stuff in python</p>
+            <p>Not going to go over install - varies too much depending on webserver you want to use. For dev purposes can get Flask and run debug server on local machine.</p>
+            <p>There are companies selling Flask hosting where they handle the webserver parts if you don't want to do it yourself.</p>
+            <p>Just need to get Flask from PyPI (or other package manager) with one of the methods Carlos went over last month.</p>
+            <p>Import Flask</p>
+            <p>Create a Flask app</p>
+            <p>Add a route to the app - map requests for / to the function hello.</p>
+            <p>@ syntax is a decorator - a function that operates on the function that follows to return a new function with different functionality. Don't need to worry about the details how it happens here: it attaches the function hello() as handler for the route /</p>
+            <p>Function just returns "Hello, World!" string</p>
+          </aside>
+        </section>
+        <section>
+          <h1>Do something based on the request</h1>
+          <pre class="fragment"><code data-trim>
+from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route("/")
+def hello():
+    return "Hello, {}!".format(request.args.get("name", "World"))             
+          </code></pre>
+          <aside class="notes">
+            <p>request.args is a dictionary of arguments given in the URL after a ?</p>
+            <p>get() looks up an entry in that dict</p>
+            <p>Second argument to get() is the default value to use of the key isn't found</p>
+          </aside>
+        </section>
+        <section>
+          <h1>Template rendering</h1>
+          <pre class="fragment"><code data-trim>
+from flask import Flask, request, render_template
+
+app = Flask(__name__)
+
+@app.route("/")
+def hello():
+    return render_template("hello.html",
+         name=request.args.get("name", "World"))
+          </code></pre>
+          <div class="fragment">
+            <p>hello.html</p>
+            <pre><code data-trim>
+&lt;html>
+&lt;head>&lt;title>Hello {{ name }}&lt/title>&lt;/head>
+&lt;body>&lt;h1>Hello, {{ name }}!&lt;/h1>&lt;/body>
+&lt;/html>
+            </code></pre>
+
+          <aside class="notes">
+            <p>request.args is a dictionary of arguments given in the URL after a ?</p>
+            <p>get() looks up an entry in that dict</p>
+            <p>Second argument to get() is the default value to use of the key isn't found</p>
+          </aside>
+        </section>
+        <section>
+          <h1>Template rendering</h1>
+          <pre class="fragment"><code data-trim>
+{% for l in things %}
+&lt;div>{{ l }}&lt;/div>
+{% endfor %}
+          </code></pre>
+          <pre class="fragment"><code data-trim>
+{% if cond %}
+&lt;div>Stuff for when cond is True&lt;/div>
+{% else %}
+&lt;div>Stuff for when cond is False&lt;/div>
+{% endif %}
+          </code></pre>
+          <pre class="fragment"><code data-trim>
+{{ val|filter }}
+          </code></pre>
+          <p class="fragment"> See the <a href="https://jinja.palletsprojects.com/en/2.10.x/">Jinja documentation</a> for more details.</p>
+          <aside class="notes">
+            <p>Quite a lot of other features to give more complicated logic</p>
+            <p>Common use is extending/including other files to split up the common components that are on multiple pages of the site and the stuff that's only used in one place</p>
+            <p>There is support for adding more extensions so rendering logic can be arbitrarily complex</p>
+          </aside>
+        </section>
+        <section>
+          <h1>Form Handling</h1>
+          <pre class="fragment"><code data-trim>
+from flask import Flask, request, render_template
+
+app = Flask(__name__)
+
+@app.route("/", methods=["GET","POST"])
+def hello():
+    if request.method == "POST":
+        return render_template("hello.html",
+                name=request.form.get("name", "World"))
+    else:
+        return render_template("name_form.html")
+          </code></pre>
+          <aside class="notes">
+          </aside>
+        </section>
+        <section>
+          <h1>Return JSON</h1>
+          <pre class="fragment"><code data-trim>
+from flask import Flask, jsonify
+
+app = Flask(__name__)
+@app.route("/airport")
+def airport():
+    airports = {'ABZ': 'Aberdeen',
+                'GTW': 'Gatwick',
+                'LHR': 'London Heathrow'}
+    return jsonify(airports)
+          </code></pre>
+          <pre class="fragment">
+ormiret@afegru:~$ http localhost:5000/airport
+HTTP/1.0 200 OK
+Content-Length: 74
+Content-Type: application/json
+Date: Wed, 13 Nov 2019 15:41:57 GMT
+Server: Werkzeug/0.14.1 Python/2.7.16
+
+{
+    "ABZ": "Aberdeen",
+    "GTW": "Gatwick",
+    "LHR": "London Heathrow"
+}        </pre>              
+        </section>
+        <section>
+          <h2>Return a generated image</h2>
+          <pre><code data-trim>
+@app.route("/api/membership/graph", methods=['GET'])
+def api_membership_graph():
+    from payments import membership
+    members = membership()
+    members.reverse()
+    counts = [x[2] for x in members]
+    dates = [str(x[1])[-2:]+"/"+str(x[0]) for x in members]
+    import matplotlib
+    import numpy as np
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    plt.xkcd() 
+    fig = plt.figure()
+    ax = plt.subplot(111)
+    ax.bar(range(len(dates)),counts,width=1)
+    ax.set_xticks(np.arange(len(dates))+.5)
+    ax.set_xticklabels(dates, rotation=90)
+    plt.xlabel('Date')
+    plt.ylabel('Members')
+    plt.subplots_adjust(bottom=0.15)
+    from cStringIO import StringIO
+    io = StringIO()
+    fig.savefig(io, format='png')
+    data = io.getvalue().encode('base64')
+    page='''
+&lt;html>
+&lt;body>
+&lt;img src="data:image/png;base64,{}"/>
+&lt;/body>
+&lt;/html>
+'''
+    return page.format(data)
+          </code></pre>
+          <a href="https://hub.57north.org.uk/api/membership/graph">Live</a>
+          <aside class="notes">
+            <p>Actual code I've used.</p>
+            <p>Very much Doing It Wrong, but nice example of flexibility</p>
+          </aside>
+        </section>
+        <section>
+          <h1>Client side</h1>
+          <h2 class="fragment">In the standard library there is <code>urllib</code></h2>
+          <h2 class="fragment">Requests</h2>
+          <h2 class="fragment">BeautifulSoup</h2>
+        </section>
+        <section>
+          <h1>URLLib</h1>
+          <pre><code data-trim>
+import urllib.request
+
+with urllib.request.urlopen('http://www.python.org/') as f:
+     print(f.read())              
+          </code></pre>
+          </section>
+          <section>
+            <h1>Requests</h1>
+            <pre><code data-trim>
+import requests
+
+response = requests.get("http://python.org/")
+status = response.status_code
+page = response.text
+            </code></pre>
+            <pre class="fragment"><code data-trim>
+response = requests.post("http://example.com/form",
+                         data={"key":"value"})
+            </code></pre>
+            <pre class="fragment"><code data-trim>
+response = requests.get("http://example.com/secret",
+                       auth=("username","password"))
+            </code></pre>
+            <pre class="fragment"><code data-trim>
+session = requests.Session()                
+session.post("http://example.com/login",
+             data={"user":"name","password":"secret"})
+response = session.get("http://example.com/page")
+            </code></pre>
+            <pre class="fragment"><code data-trim>
+>>> requests.get("http://localhost:5000/airport").json()
+{u'ABZ': u'Aberdeen', u'LHR': u'London Heathrow', u'GTW': u'Gatwick'}
+>>> 
+            </code></pre>
+
+          </section>
+          <section>
+            <h1>BeautifulSoup</h1>
+            <pre><code data-trim>
+import requests 
+from bs4 import BeautifulSoup 
+  
+URL = "https://en.wikipedia.org/wiki/List_of_airports_by_IATA_code:_A"
+r = requests.get(URL) 
+  
+soup = BeautifulSoup(r.content, 'html5lib') 
+
+data = []
+table = soup.find('table')
+table_body = table.find('tbody')
+
+rows = table_body.find_all('tr')
+for row in rows:
+    cols = row.find_all('td')
+    cols = [ele.text.strip() for ele in cols]
+    data.append(cols)
+           </code></pre>                
+          </section>
+
+          <section>
+            <h1>Done.</h1>
+          </section>
+        </div> <!-- slides -->
+    </div><!-- reveal -->
+    
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery.novacancy.js"></script>
+
+    <script>
+
+      // More info https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+      controls: true,
+      progress: true,
+      history: true,
+      center: true,
+      
+      transition: 'none', // none/fade/slide/convex/concave/zoom
+      
+      // More info https://github.com/hakimel/reveal.js#dependencies
+      dependencies: [
+      { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'plugin/zoom-js/zoom.js', async: true },
+      { src: 'plugin/notes/notes.js', async: true }
+      ]
+      });
+    $(document).ready(function() {
+      $('.no').novacancy({
+      'reblinkProbability': 0.4,
+      'blinkMin': 0.2,
+      'blinkMax': 0.6,
+      'loopMin': 8,
+      'loopMax': 10,
+      'color': 'WHITE',
+      'blink': true
+      });
+      $('.vacancy').novacancy({
+      'color': 'RED'
+      });
+      });
+  
+    </script>
+    
+  </body>
+</html>
