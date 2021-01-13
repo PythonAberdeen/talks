@@ -1,4 +1,4 @@
-#An introduction to Regular Expressions in Python
+# An introduction to Regular Expressions in Python
 By [Ian Watt](https://github.com/watty62) - Licence [CC-BY-SA](https://creativecommons.org/licenses/by-sa/4.0/)
 
 This is a talk given at the Aberdeen Python User Group on 13 Jan 2021. 
