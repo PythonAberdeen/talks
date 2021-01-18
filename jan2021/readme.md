@@ -3,7 +3,7 @@ By [Ian Watt](https://github.com/watty62) - Licence [CC-BY-SA](https://creativec
 
 This is a talk given at the Aberdeen Python User Group on 13 Jan 2021. 
 
-It is in the form of [a Jupyter notebook_IW](Intro_to_regexes.ipynb). A copy as a Python file has been exported and uploaded.
+It is in the form of [a Jupyter notebook_IW](Intro_to_regexes_IW.ipynb). A copy as a Python file has been exported and uploaded.
 
 It also contains TestFile.txt which is used in the example towards the end. 
 
